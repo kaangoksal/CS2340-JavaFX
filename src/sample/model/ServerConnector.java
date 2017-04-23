@@ -1,7 +1,7 @@
 package sample.model;
 
-import android.util.Base64;
-import android.util.Log;
+import java.io.UnsupportedEncodingException;
+import java.util.Base64;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -16,6 +16,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+import sun.misc.BASE64Encoder;
 
 /**
  * Created by Alex Thien An Le on 2/23/2017.
@@ -26,34 +27,18 @@ import okhttp3.Response;
 public class ServerConnector {
     /**
      * Attempts login to the server and returns the full credentials of the user
-     * @param email of the user
-     * @param password of the user
+     * @param user the user
      * @return a user with many details as possible
      * @throws IOException if something goes bad
      */
-    public static User attemptLogin(String email, String password) throws IOException {
+    public static User attemptLogin(User user) throws IOException {
 
         Call.Factory client = new OkHttpClient();
 
-        String authentication = email + ":" + password;
-        byte[] authentication_bytes = authentication.getBytes("UTF-8");
-
-        String base64_encoded = Base64.encodeToString(authentication_bytes, Base64.DEFAULT);
-        base64_encoded = "Basic " + base64_encoded;
-        base64_encoded = base64_encoded.replace("\n", "");
+        String base64_encoded = parseBase64BasicAuth(user);
 
         String bodyString = "";
-//        try {
-//            JSONObject bodyJson = new JSONObject();
-//            bodyJson.put("email", email);
-//            bodyJson.put("password", password);
-//            bodyJson.put("username", "");
-//            bodyJson.put("token", "");
-//            bodyString = bodyJson.toString();
-//
-//        } catch (JSONException ex) {
-//            ex.printStackTrace();
-//        }
+
 
         MediaType mediaType = MediaType.parse("application/octet-stream");
         RequestBody body = RequestBody.create(mediaType, bodyString);
@@ -66,7 +51,6 @@ public class ServerConnector {
         Response response = client.newCall(request).execute();
         String responseString = response.body().string();
 
-        Log.d("ServerConnector", "Server returned response for attempt login = " +responseString );
         JSONObject received;
         User retrieved_user = null;
         try {
@@ -97,11 +81,10 @@ public class ServerConnector {
                     break;
             }
 
-            Log.d("ServerConnector", "JsonObj " + received.toString());
+            System.out.println("ServerConnector " + " JsonObj " + received.toString());
 
         } catch (JSONException E){
-            Log.d("ServerConnector", "get Reports Json problem! " +responseString + E.getMessage() +
-                    " " +E.getLocalizedMessage() + " " + E.toString() );
+           System.out.print("Login Error");
         }
 
         return retrieved_user;
@@ -110,31 +93,24 @@ public class ServerConnector {
 
     /**
      * Registers user to the server
-     * @param username the users username
-     * @param password the users password
-     * @param address the users home address
-     * @param email the users email address
+     * @param user the user
      * @return whether the user could be added or not
      * @throws IOException if the user could not be added or failure to reach server.
      */
-    public static boolean addUser(String username, String password, String address, String email)
+    public static boolean addUser(User user)
             throws IOException{
 
 
-        String authentication = email + ":" + password;
-        byte[] authentication_bytes = authentication.getBytes("UTF-8");
-        String base64_encoded = Base64.encodeToString(authentication_bytes, Base64.DEFAULT);
-        base64_encoded = "Basic " + base64_encoded;
-        base64_encoded = base64_encoded.replace("\n", "");
+        String base64_encoded = parseBase64BasicAuth(user);
 
         String bodyString = "";
         try {
             JSONObject bodyJson = new JSONObject();
-            bodyJson.put("email", email);
-            bodyJson.put("password", password);
-            bodyJson.put("username", username);
+            bodyJson.put("email", user.getEmail());
+            bodyJson.put("password", user.getPassword());
+            bodyJson.put("username", user.getUsername());
             bodyJson.put("token", "");
-            bodyJson.put("address", address);
+            bodyJson.put("address", user.getAddress());
             bodyString = bodyJson.toString();
 
         } catch (JSONException ex) {
@@ -155,7 +131,6 @@ public class ServerConnector {
         Response response = client.newCall(request).execute();
         String responseString = response.body().string();
 
-        Log.d("[HTTP]", "Server Response " + responseString + responseString.indexOf("Successful"));
         if (responseString.indexOf("Failed") > 0) {
             return false;
         } else if (responseString.indexOf("Account") > 0) {
@@ -167,27 +142,21 @@ public class ServerConnector {
 
     /**
      * edits user on the server
-     * @param username username of the user
-     * @param password password of the user
-     * @param email email of the user
+     * @param user username of the user
      * @return whether the operation was successful
      * @throws IOException if something goes bad
      */
-    public static boolean editUser(String username, String password, String email) throws
+    public static boolean editUser(User user) throws
             IOException{
 
-        String authentication = email + ":" + password;
-        byte[] authentication_bytes = authentication.getBytes("UTF-8");
-        String base64_encoded = Base64.encodeToString(authentication_bytes, Base64.DEFAULT);
-        base64_encoded = "Basic " + base64_encoded;
-        base64_encoded = base64_encoded.replace("\n", "");
+        String base64_encoded = parseBase64BasicAuth(user);
 
         String bodyString = "";
         try {
             JSONObject bodyJson = new JSONObject();
-            bodyJson.put("email", email);
-            bodyJson.put("password", password);
-            bodyJson.put("username", username);
+            bodyJson.put("email", user.getEmail());
+            bodyJson.put("password", user.getPassword());
+            bodyJson.put("username", user.getUsername());
             bodyJson.put("token", "");
             bodyString = bodyJson.toString();
 
@@ -209,7 +178,7 @@ public class ServerConnector {
         String responseString = response.body().string();
 
 
-        Log.d("[HTTP]", "Server Response " + responseString + responseString.indexOf("Successful"));
+
         if (responseString.indexOf("Failed") > 0) {
             return false;
         } else if (responseString.indexOf("Successful") > 0) {
@@ -246,7 +215,7 @@ public class ServerConnector {
         String responseString = response.body().string();
 
 
-        Log.d("[HTTP]", "Server Response " + responseString + responseString.indexOf("Successful"));
+
         if (responseString.indexOf("Failed") > 0) {
             return false;
         } else if (responseString.indexOf("Successful") > 0) {
@@ -281,16 +250,15 @@ public class ServerConnector {
         Response response = client.newCall(request).execute();
         String responseString = response.body().string();
 
-        Log.d("ServerConnector", "Server returned response for get reports = " +responseString );
+
         JSONObject received;
         JSONArray return_array = null;
         try {
             received = new JSONObject(responseString);
-            Log.d("ServerConnector", "JsonObj " + received.toString());
+
             return_array = received.getJSONArray("reports");
         } catch (JSONException E){
-            Log.d("ServerConnector", "get Reports Json problem! " +responseString + E.getMessage() +
-                    " " +E.getLocalizedMessage() + " " + E.toString() );
+
         }
 
 
@@ -323,13 +291,13 @@ public class ServerConnector {
         Response response = client.newCall(request).execute();
         String responseString = response.body().string();
 
-        Log.d("ServerConnector", "Server returned response for get reports = " +responseString );
+
 
 
         ArrayList<WaterSourceReport> return_array = new ArrayList<>();
         try {
             JSONObject received = new JSONObject(responseString);
-            Log.d("ServerConnector", "JsonObj " + received.toString());
+
             JSONArray jsonArray  = received.getJSONArray("reports");
 
             for (int i = 0; i < jsonArray.length(); i++) {
@@ -338,13 +306,11 @@ public class ServerConnector {
                 return_array.add(new_report);
                 assert new_report != null;
                 @SuppressWarnings("LawOfDemeter") String newReportToString = new_report.toString();
-                Log.e("ServerConnector", "Populating the water source report " +
-                        newReportToString);
+
             }
 
         } catch (JSONException E){
-            Log.d("ServerConnector", "get Reports Json problem! " +responseString + E.getMessage() +
-                    " " +E.getLocalizedMessage() + " " + E.toString() );
+
         }
 
 
@@ -377,7 +343,6 @@ public class ServerConnector {
         Response response = client.newCall(request).execute();
         String responseString = response.body().string();
 
-        Log.d("ServerConnector", "Server returned response for get reports = " + responseString );
 
 
         ArrayList<WaterPurityReport> return_array = new ArrayList<>();
@@ -385,10 +350,10 @@ public class ServerConnector {
             JSONObject received = new JSONObject(responseString);
             JSONArray jsonArray = received.getJSONArray("reports");
 
-            Log.d("ServerConnector", "RECEIVED  " + received.toString());
+
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONObject reportJsonChild = jsonArray.getJSONObject(i);
-                Log.e("Server Connector", "Json Object " + reportJsonChild.toString());
+
 
                 return_array.add(WaterPurityReport.fromJSONObject(reportJsonChild));
                 WaterPurityReport report = WaterPurityReport.fromJSONObject(reportJsonChild);
@@ -396,14 +361,13 @@ public class ServerConnector {
                 if (report != null) {
                     @SuppressWarnings("LawOfDemeter") String jsonToString = report.toString();
 
-                    Log.e("Server Connector", "Populating the list " + jsonToString);
+
                 }
 
             }
 
         } catch (JSONException E){
-            Log.d("ServerConnector", "get Reports Json problem! " +responseString + E.getMessage() +
-                    " " +E.getLocalizedMessage() + " " + E.toString() );
+
         }
 
 
@@ -414,13 +378,31 @@ public class ServerConnector {
     private static String parseBase64BasicAuth(User user)  {
         String authentication = user.getEmail() + ":" + user.getPassword();
 
-        byte[] authentication_bytes;
+//        byte[] authentication_bytes;
+//        try {
+//            authentication_bytes = authentication.getBytes("UTF-8");
+//        } catch (IOException E){
+//            authentication_bytes ="Error".getBytes();
+//        }
+
+//
+//        Base64.Encoder aa = Base64.getEncoder();
+//        byte[] b = Auth.getBytes();
+//        byte[] encoded = aa.encode(b);
+
+        String base64_encoded = "";
         try {
-            authentication_bytes = authentication.getBytes("UTF-8");
-        } catch (IOException E){
-            authentication_bytes ="Error".getBytes();
+            Base64.Encoder base64encoder = Base64.getEncoder();
+            byte[] authbytes = authentication.getBytes();
+            byte[] encoded = base64encoder.encode(authbytes);
+            base64_encoded = new String(encoded, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            System.out.println("Error Encoding authentication");
         }
-        String base64_encoded = Base64.encodeToString(authentication_bytes, Base64.DEFAULT);
+
+
+
+//        String base64_encoded = Base64.encodeToString(authentication_bytes, Base64.DEFAULT);
         base64_encoded = "Basic " + base64_encoded;
         base64_encoded = base64_encoded.replace("\n", "");
         return base64_encoded;
