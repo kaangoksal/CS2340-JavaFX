@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.control.*?>
+<?import java.lang.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+
+<GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.controller.DashBoardController">
+   <columnConstraints>
+      <ColumnConstraints />
+   </columnConstraints>
+   <rowConstraints>
+      <RowConstraints />
+   </rowConstraints>
+   <children>
+      <BorderPane prefHeight="200.0" prefWidth="200.0">
+         <center>
+            <VBox prefHeight="200.0" prefWidth="100.0" spacing="10.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Email" />
+                  <HBox prefHeight="100.0" prefWidth="200.0">
+                     <children>
+                        <Button mnemonicParsing="false" text="Add Water Source Report" />
+                        <Button mnemonicParsing="false" text="View Water Source Report" />
+                        <Button mnemonicParsing="false" text="Edit Profile" />
+                     </children>
+                  </HBox>
+               </children>
+               <padding>
+                  <Insets bottom="10.0" />
+               </padding>
+            </VBox>
+         </center>
+         <padding>
+            <Insets bottom="50.0" left="50.0" right="50.0" top="50.0" />
+         </padding>
+         <right>
+            <VBox prefHeight="200.0" prefWidth="100.0" BorderPane.alignment="CENTER">
+               <children>
+                  <Button mnemonicParsing="false" text="Logvout" />
+               </children>
+            </VBox>
+         </right>
+      </BorderPane>
+   </children>
+</GridPane>
