@@ -4,6 +4,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
+import sample.Main;
 import sample.ScreensController;
 import sample.ScreensFramework;
 import sample.model.ServerConnector;
@@ -28,6 +29,8 @@ public class RegisterController implements Initializable, ControlledScreen{
     private TextArea AddressField;
     @FXML
     private Button RegisterButton;
+    @FXML
+    private Button BackButton;
 
     ScreensController myController;
     /**
@@ -36,6 +39,7 @@ public class RegisterController implements Initializable, ControlledScreen{
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         RegisterButton.setOnAction(this::RegisterButtonAction);
+        BackButton.setOnAction(this::BackButtonAction);
     }
 
     public void setScreenParent(ScreensController screenParent){
@@ -49,7 +53,9 @@ public class RegisterController implements Initializable, ControlledScreen{
 //        this.password = password;
 //        this.email = email;
 //    }
-
+    private void BackButtonAction(ActionEvent event) {
+        myController.setScreenWithSize(Main.mainScreen, 200, 100);
+    }
 
     private void RegisterButtonAction(ActionEvent event) {
         // Button was clicked, do something...
@@ -63,6 +69,7 @@ public class RegisterController implements Initializable, ControlledScreen{
                     alert.setTitle("User Registration Complete");
                     alert.setHeaderText("You can return back to login now and log in1");
                     alert.showAndWait();
+                    myController.setScreen(Main.mainScreen);
 
                 } else {
                     Alert alert = new Alert(Alert.AlertType.ERROR);

@@ -53,6 +53,7 @@ import javafx.scene.Parent;
 import javafx.scene.layout.StackPane;
 import javafx.util.Duration;
 import sample.controller.ControlledScreen;
+import javafx.stage.Stage;
 
 /**
  *
@@ -62,6 +63,7 @@ public class ScreensController  extends StackPane {
     //Holds the screens to be displayed
 
     private HashMap<String, Node> screens = new HashMap<>();
+    private Stage currentstage;
 
     public ScreensController() {
         super();
@@ -70,6 +72,10 @@ public class ScreensController  extends StackPane {
     //Add the screen to the collection
     public void addScreen(String name, Node screen) {
         screens.put(name, screen);
+    }
+
+    public void registerStage(Stage stage){
+        this.currentstage = stage;
     }
 
     //Returns the Node with the appropriate name
@@ -147,6 +153,24 @@ public class ScreensController  extends StackPane {
          System.out.println("screen hasn't been loaded!!! \n");
          return false;
          }*/
+    }
+
+    /**
+     * This method is used to switch screens by also modfying the size of the window
+     * @param name name of the screen that is being transitioned into
+     * @param x width of the window
+     * @param y height of the window
+     * @return result of the transition
+     */
+    public boolean setScreenWithSize(final String name, double x, double y) {
+        if (setScreen(name)){
+            this.currentstage.setHeight(y);
+            this.currentstage.setWidth(x);
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
     //This method will remove the screen with the given name from the collection of screens

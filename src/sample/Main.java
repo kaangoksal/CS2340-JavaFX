@@ -10,10 +10,11 @@ public class Main extends Application {
     public static String mainScreen = "LoginScreen";
     public static String screen1File = "screen/LoginScreen.fxml";
     public static String dashboardScreen = "DashBoardScreen";
-    public static String dashboardScreenFile = "screen/DashBoard.fxml";
+    public static String dashboardScreenFile = "screen/UserDashBoard.fxml";
 
-    public static String screen3ID = "registerScreen";
-    public static String screen3File = "Screen3.fxml";
+    public static String registerScreen = "registerScreen";
+    public static String getRegisterScreenFile = "screen/RegisterScreen.fxml";
+//    public static Stage currentstage;
     @Override
     public void start(Stage primaryStage) throws Exception{
 //        Parent root = FXMLLoader.load(getClass().getResource("sample.fxml"));
@@ -24,9 +25,10 @@ public class Main extends Application {
         ScreensController mainContainer = new ScreensController();
         mainContainer.loadScreen(Main.mainScreen, Main.screen1File);
         mainContainer.loadScreen(Main.dashboardScreen, Main.dashboardScreenFile);
-        mainContainer.loadScreen(Main.screen3ID, Main.screen3File);
+        mainContainer.loadScreen(Main.registerScreen, Main.getRegisterScreenFile);
 
         mainContainer.setScreen(Main.mainScreen);
+        mainContainer.registerStage(primaryStage);
 
         Group root = new Group();
         root.getChildren().addAll(mainContainer);

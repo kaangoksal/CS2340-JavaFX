@@ -130,7 +130,7 @@ public class ServerConnector {
 
         Response response = client.newCall(request).execute();
         String responseString = response.body().string();
-
+        System.out.println("Add user server response " + responseString);
         if (responseString.indexOf("Failed") > 0) {
             return false;
         } else if (responseString.indexOf("Account") > 0) {
